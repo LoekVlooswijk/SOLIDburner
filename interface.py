@@ -3,10 +3,10 @@ import tkinter as tk
 import RPi.GPIO as GPIO
 from time import sleep, time
 
-GPIO_fan = 21
-GPIO_gas = 22
-GPIO_ignition = 13
-GPIO_iron = 14
+GPIO_fan = 17
+GPIO_gas = 18
+GPIO_ignition = 19
+GPIO_iron = 20
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(GPIO_ignition, GPIO.OUT)
@@ -16,7 +16,13 @@ GPIO.setup(GPIO_iron, GPIO.OUT)
 
 master = tk.Tk()
 master.title("Demo Burner Control")
-master.geometry("300x100")
+#master.geometry("300x100")
+master.attributes('-fullscreen', True)
+master.rowconfigure(0, weight=1)
+master.rowconfigure(1, weight=1)
+master.rowconfigure(2, weight=1)
+master.rowconfigure(3, weight=1)
+master.columnconfigure(0,weight=1)
 
 power_state = False
 time_started = time()
@@ -60,14 +66,14 @@ def turn_off_fan():
 
 ONbutton = tk.Button(master, text="Power on", bg="blue", command=power_button)
 ONlabel = tk.Label(master, text="Turned OFF", fg="red")
-ONlabel.grid(row=0, column=0)
-ONbutton.grid(row=1, column=0)
+ONlabel.grid(row=0, column=0, sticky="NSEW")
+ONbutton.grid(row=1, column=0, sticky="NSEW")
 
 FANbutton = tk.Button(master, text="Fan off", bg="blue", command=turn_off_fan)
-FANbutton.grid(row=2, column=0)
+FANbutton.grid(row=2, column=0, sticky="NSEW")
 
 Exitbutton = tk.Button(master, text="Exit", bg="red", command=master.destroy)
-Exitbutton.grid(row=3, column=0)
+Exitbutton.grid(row=3, column=0, sticky="NSEW")
 
 def update():
     global power_state
@@ -78,8 +84,9 @@ def update():
         if time_running > 15:
             power_state = True
             power_button()
-    master.after(1000, update)
+    #master.after(1000, update)
 
 
-master.after(0, update)  # begin updates
+#master.after(0, update)  # begin updates
 master.mainloop()
+
