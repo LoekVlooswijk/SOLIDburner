@@ -3,6 +3,8 @@ import tkinter as tk
 import RPi.GPIO as GPIO
 from time import sleep, time
 
+GPIO.setwarnings(False)
+
 GPIO_fan = 17
 GPIO_gas = 18
 GPIO_ignition = 19
@@ -19,10 +21,15 @@ master.title("Demo Burner Control")
 #master.geometry("300x100")
 master.attributes('-fullscreen', True)
 master.rowconfigure(0, weight=1)
-master.rowconfigure(1, weight=1)
-master.rowconfigure(2, weight=1)
-master.rowconfigure(3, weight=1)
-master.columnconfigure(0,weight=1)
+master.rowconfigure(1, weight=2)
+master.rowconfigure(2, weight=2)
+master.rowconfigure(3, weight=2)
+master.rowconfigure(4, weight=1)
+master.columnconfigure(0, weight=1)
+master.columnconfigure(1, weight=4)
+master.columnconfigure(2, weight=1)
+
+font = tk.font.Font(family='Helvetica', size=25)
 
 power_state = False
 time_started = time()
@@ -34,8 +41,8 @@ def power_button():
         # GPIO.output(GPIO21, power_state)
         FANbutton["state"] = "normal"
         power_state = False
-        ONlabel = tk.Label(master, text="Turned OFF", fg="red")
-        ONlabel.grid(row=0, column=0)
+        ONlabel.config(text="Machine turned OFF", fg="red", font=font)
+        #ONlabel.grid(row=0, column=1)
         ONbutton.config(text="Power on")
         print("turn off gas")
         print("turn off iron")
@@ -44,8 +51,8 @@ def power_button():
         # GPIO.output(GPIO21, power_state)
         power_state = True
         FANbutton["state"] = "disabled"
-        ONlabel = tk.Label(master, text="Turned ON", fg="green")
-        ONlabel.grid(row=0, column=0)
+        ONlabel.config(text="Machine turned ON", fg="green", font=font)
+        #ONlabel.grid(row=0, column=1)
         ONbutton.config(text="Power off")
         time_started = time()
         print("turn on fan")
@@ -64,16 +71,16 @@ def turn_off_fan():
         print("turn off fan")
 
 
-ONbutton = tk.Button(master, text="Power on", bg="blue", command=power_button)
-ONlabel = tk.Label(master, text="Turned OFF", fg="red")
-ONlabel.grid(row=0, column=0, sticky="NSEW")
-ONbutton.grid(row=1, column=0, sticky="NSEW")
+ONbutton = tk.Button(master, text="Power on", bg="darkgrey", command=power_button, font=font, activebackground='darkgrey')
+ONlabel = tk.Label(master, text="Machine turned OFF", fg="red", font=font)
+ONlabel.grid(row=0, column=1, sticky="NSEW")
+ONbutton.grid(row=1, column=1, sticky="NSEW")
 
-FANbutton = tk.Button(master, text="Fan off", bg="blue", command=turn_off_fan)
-FANbutton.grid(row=2, column=0, sticky="NSEW")
+FANbutton = tk.Button(master, text="Fan off", bg="darkgrey", command=turn_off_fan, font=font, activebackground='darkgrey')
+FANbutton.grid(row=2, column=1, sticky="NSEW")
 
-Exitbutton = tk.Button(master, text="Exit", bg="red", command=master.destroy)
-Exitbutton.grid(row=3, column=0, sticky="NSEW")
+Exitbutton = tk.Button(master, text="Exit", bg="red", command=master.destroy, font=font, activebackground='red')
+Exitbutton.grid(row=3, column=1, sticky="NSEW")
 
 def update():
     global power_state
@@ -87,6 +94,7 @@ def update():
     #master.after(1000, update)
 
 
-#master.after(0, update)  # begin updates
+master.after(0, update)  # begin updates
 master.mainloop()
+
 
