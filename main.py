@@ -30,6 +30,8 @@ def power_off_check():
         gui.PowerButton.config(text="Power on")
         #print("turn off gas")
         #print("turn off iron")
+        gpio_control.gpio_gas(False)
+        gpio_control.gpio_iron(False)
         bool_gas = False
         bool_iron = False
 
@@ -46,17 +48,23 @@ def power_on_check():
 
         if not bool_fan:
             print("turn on fan")
+            gpio_control.gpio_fan(True)
             bool_fan = True
         if time_running > 2 and not bool_gas:  # Fan is running 2 seconds before gas comes in
             print("turn on gas")
+            gpio_control.gpio_gas(True)
             bool_gas = True
         if 4 < time_running < 6 and not bool_iron and not bool_ignition:  # do 2 seconds of ignition
+            # Turn on ignition and iron
             print("turn on ignition")
             print("turn on iron")
+            gpio_control.gpio_ignition(True)
+            gpio_control.gpio_iron(True)
             bool_ignition = True
             bool_iron = True
         if time_running > 6 and bool_ignition:
             print("turn off ignition")
+            gpio_control.gpio_ignition(False)
             bool_ignition = False
             gui.OnLabel.config(text="Machine turned ON", fg="green")
 
@@ -66,6 +74,7 @@ def turn_off_fan():
     global turning_on, bool_fan
     if not turning_on:
         print("turn off fan")
+        gpio_control.gpio_fan(False)
         bool_fan = False
         gui.FANbutton["state"] = "disabled"
 
