@@ -9,12 +9,12 @@ GPIO_fan = 17
 GPIO_gas = 26
 
 # Relay for ignition
-GPIO_ignition = 18
+GPIO_ignition = 27
 
 # DC motor for iron feed
 GPIO_iron_in1 = 24
 GPIO_iron_in2 = 23
-GPIO_iron_enable = 22  # PWM
+GPIO_iron_enable = 25  # PWM
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(GPIO_ignition, GPIO.OUT)
@@ -24,9 +24,9 @@ GPIO.setup(GPIO_fan, GPIO.OUT)
 GPIO.setup(GPIO_iron_in1, GPIO.OUT)
 GPIO.setup(GPIO_iron_in2, GPIO.OUT)
 GPIO.setup(GPIO_iron_enable, GPIO.OUT)
-#PWM_iron = GPIO.PWM(GPIO_iron_enable, 1000)
+PWM_iron = GPIO.PWM(GPIO_iron_enable, 1000)
 GPIO.output(GPIO_iron_in2, GPIO.LOW)
-#PWM_iron.start(25)
+PWM_iron.start(25)
 
 
 def gpio_fan(power):
