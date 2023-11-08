@@ -12,8 +12,9 @@ def exit_software():
 
 def power_button():
     # Toggle the power button and change internal on/off state
-    global turning_on, time_started
+    global turning_on, time_started, time_running
     time_started = time()
+    time_running = time() - time_started
     turning_on = not turning_on
 
 
@@ -54,7 +55,7 @@ def power_on_check():
             print("turn on gas")
             gpio_control.gpio_gas(True)
             bool_gas = True
-        if 4 < time_running < 6 and not bool_iron and not bool_ignition:  # do 2 seconds of ignition
+        if 4 < time_running < 4.25 and not bool_iron and not bool_ignition:  # do 2 seconds of ignition
             # Turn on ignition and iron
             print("turn on ignition")
             print("turn on iron")
