@@ -1,8 +1,19 @@
-from time import sleep, time
 import sys
 import gpio_control
 import interface as gui
+import RPi.GPIO as GPIO
+import threading
+import time
+from RpiMotorLib import RpiMotorLib
 
+# Pins for Stepper motor driver iron
+GPIO_iron_direction = 22
+GPIO_iron_step = 25
+GPIO_iron_EN = 24
+
+mymotortest = RpiMotorLib.A4988Nema(GPIO_iron_direction, GPIO_iron_step, (21,21,21), "A4988")
+GPIO.setup(GPIO_iron_EN, GPIO.OUT)
+GPIO.output(GPIO_iron_EN, GPIO.LOW)
 
 def exit_software():
     # Quit the software and destroy the gui instance
@@ -11,10 +22,10 @@ def exit_software():
 
 
 def power_button():
-    # Toggle the power button and change internal on/off state
+    # Toggled by the power button and change internal on/off state
     global turning_on, time_started, time_running
-    time_started = time()
-    time_running = time() - time_started
+    time_started = time.time()
+    time_running = time.time() - time_started
     turning_on = not turning_on
 
 
@@ -27,15 +38,21 @@ def power_off_check():
             gui.FANbutton["state"] = "normal"
 
         # Turn off gas and iron
-        gui.OnLabel.config(text="Machine turned OFF", fg="red")
-        gui.PowerButton.config(text="Power on")
-        #print("turn off gas")
-        #print("turn off iron")
         gpio_control.gpio_gas(False)
-        gpio_control.gpio_iron(False)
         bool_gas = False
         bool_iron = False
+        #print("turn off gas")
+        #print("turn off iron")
+        gui.OnLabel.config(text="Machine turned OFF", fg="red")
+        gui.PowerButton.config(text="Power on")
 
+
+def stepper_motor_control():
+    global bool_iron
+    while True:
+        if bool_iron:
+            mymotortest.motor_go(False, "1/8", 100, .0035, False, .001)
+            time.sleep(0.001)
 
 def power_on_check():
     # Initiate the turning on process when running
@@ -47,7 +64,7 @@ def power_on_check():
         gui.FANbutton["state"] = "disabled"
         gui.PowerButton.config(text="Power off")
 
-        if not bool_fan:
+        if not bool_fan: # Fan should start running first
             print("turn on fan")
             gpio_control.gpio_fan(True)
             bool_fan = True
@@ -55,14 +72,13 @@ def power_on_check():
             print("turn on gas")
             gpio_control.gpio_gas(True)
             bool_gas = True
-        if 4 < time_running < 4.25 and not bool_iron and not bool_ignition:  # do 2 seconds of ignition
+        if 4 < time_running < 4.25 and not bool_iron and not bool_ignition:  # quickly turn on ignition
             # Turn on ignition and iron
             print("turn on ignition")
             print("turn on iron")
             gpio_control.gpio_ignition(True)
-            gpio_control.gpio_iron(True)
             bool_ignition = True
-            bool_iron = True
+            bool_iron = True # Turns on the extra thread for stepper motor
         if time_running > 6 and bool_ignition:
             print("turn off ignition")
             gpio_control.gpio_ignition(False)
@@ -85,24 +101,29 @@ def update_stats():
     global turning_on, time_running, time_started
     # do things
     if turning_on:
-        time_running = time() - time_started
+        time_running = time.time() - time_started
         if time_running > 60:
             turning_on = False
 
 
 # initializing
 turning_on = False
-time_started = time()
+time_started = time.time()
 time_running = 0
 bool_fan = False
 bool_gas = False
 bool_ignition = False
 bool_iron = False
+motor_thread = threading.Thread(target=stepper_motor_control)
+motor_thread.daemon = True
+motor_thread.start()
+print("init thread iron")
+
 
 # Define button functioning
 gui.PowerButton["command"] = power_button
 gui.FANbutton["command"] = turn_off_fan
-gui.Exitbutton["command"] = exit_software
+#gui.Exitbutton["command"] = exit_software
 
 
 # Main loop
@@ -116,4 +137,4 @@ while True:
     gui.master.update_idletasks()
     gui.master.update()
 
-    sleep(0.1)
+    time.sleep(0.1)

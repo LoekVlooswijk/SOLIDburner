@@ -26,5 +26,5 @@ FANbutton = tk.Button(master, text="Fan off", bg="darkgrey", font=large_font,
                       activebackground='darkgrey')
 FANbutton.grid(row=2, column=1, sticky="NSEW")
 FANbutton["state"] = "disabled"
-Exitbutton = tk.Button(master, text="Exit", bg="red", font=large_font, activebackground='red')
-Exitbutton.grid(row=3, column=1, sticky="NSEW")
+#Exitbutton = tk.Button(master, text="Exit", bg="red", font=large_font, activebackground='red')
+#Exitbutton.grid(row=3, column=1, sticky="NSEW")
